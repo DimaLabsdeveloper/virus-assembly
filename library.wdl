@@ -55,7 +55,7 @@ workflow library {
     # Add the jobs that are done per library and over the results of
     # all the readgroups below this line.
 
-        # The below code assumes that QC.read1afterQC and QC.read2afterQC are in the same order.
+    # The below code assumes that QC.read1afterQC and QC.read2afterQC are in the same order.
     call common.concatenateTextFiles as concatenateReads1 {
         input:
                         fileList = readgroup.read1afterQC,
