@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 import "tasks/biopet.wdl" as biopet
+import "QC/QC.wdl" as QC
 
 workflow readgroup {
     Array[File] sampleConfigs
@@ -45,7 +46,7 @@ workflow readgroup {
 
     output {
         File read1afterQC = qc.read1afterQC
-        File read1afterQC = qc.read1afterQC
+        File? read2afterQC = qc.read2afterQC
     }
 
 }

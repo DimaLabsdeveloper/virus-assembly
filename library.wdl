@@ -73,6 +73,6 @@ workflow library {
     output {
         Array[String] readgroups = readgroupConfigs.keys
         File reads1 = concatenateReads1.combinedFile
-        File reads2 = concatenateReads2.combinedFile
+        File? reads2 = concatenateReads2.combinedFile
     }
 }

@@ -20,6 +20,9 @@
 
 import "library.wdl" as libraryWorkflow
 import "tasks/biopet.wdl" as biopet
+import "tasks/common.wdl" as common
+import "tasks/seqtk.wdl" as seqtk
+import "tasks/spades.wdl" as spades
 
 workflow sample {
     Array[File] sampleConfigs
