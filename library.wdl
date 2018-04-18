@@ -20,6 +20,7 @@
 
 import "readgroup.wdl" as readgroup
 import "tasks/biopet.wdl" as biopet
+import "tasks/common.wdl" as common
 
 workflow library {
     Array[File] sampleConfigs
@@ -54,7 +55,24 @@ workflow library {
     # Add the jobs that are done per library and over the results of
     # all the readgroups below this line.
 
+        # The below code assumes that QC.read1afterQC and QC.read2afterQC are in the same order.
+    call common.concatenateTextFiles as concatenateReads1 {
+        input:
+                        fileList = readgroup.read1afterQC,
+                        combinedFilePath = outputDir + "/combinedReads1-" + libraryId
+                }
+
+    if (length(select_all(readgroup.read2afterQC)) > 0) {
+        call common.concatenateTextFiles as concatenateReads2 {
+            input:
+                fileList = select_all(readgroup.read2afterQC),
+                combinedFilePath = outputDir + "/combinedReads2-" + libraryId
+            }
+        }
+
     output {
         Array[String] readgroups = readgroupConfigs.keys
+        File reads1 = concatenateReads1.combinedFile
+        File reads2 = concatenateReads2.combinedFile
     }
 }
