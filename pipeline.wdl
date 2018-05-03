@@ -47,5 +47,8 @@ workflow pipeline {
 
     output {
         Array[String] samples = samplesConfigs.keys
+        Array[File] contigs = sample.spadesContigs
+        Array[File] scaffolds = sample.spafesScaffolds
+
     }
 }

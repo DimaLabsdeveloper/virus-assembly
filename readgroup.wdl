@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 import "tasks/biopet.wdl" as biopet
+import "QC/QC.wdl" as QC
 
 workflow readgroup {
     Array[File] sampleConfigs
@@ -36,9 +37,16 @@ workflow readgroup {
             tsvOutputPath = readgroupId + ".config.tsv"
     }
 
+    call QC.QC as qc {
+        input:
+            read1 = config.values.R1,
+            read2 = config.values.R2,
+            outputDir = outputDir + "qc"
+    }
+
     output {
-        File inputR1 = config.values.R1
-        File inputR2 = config.values.R2
+        File read1afterQC = qc.read1afterQC
+        File? read2afterQC = qc.read2afterQC
     }
 
 }
