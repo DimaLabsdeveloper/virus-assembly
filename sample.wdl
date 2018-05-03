@@ -94,25 +94,13 @@ workflow sample {
                 outFilePath=outputDir + "/subsampling/subsampledReads2.fq.gz",  #Spades needs a proper extension or it will crash
                 zip=true
             }
-        # If read2 is defined. Spades needs to be presented with
-        # both read1 and read2. If read2 is not defined these will
-        # Default to none
-        File inputRead1=subsampleRead1.subsampledReads
-        File inputRead2=subsampleRead2.subsampledReads
-        }
-
-    # Spades has a separate flag for single read output. If read2 is
-    # not defined then read1 should be submitted with this flag.
-    if (false == defined(combinedReads2)){
-        File singleRead=subsampleRead1.subsampledReads
     }
 
     # Call spades for the de-novo assembly of the virus.
     call spades.spades {
         input:
-            singleRead=singleRead,
-            read1=inputRead1,
-            read2=inputRead2,
+            read1=subsampleRead1.subsampledReads,
+            read2=subsampleRead2.subsampledReads,
             outputDir=outputDir + "/spades"
         }
     output {
