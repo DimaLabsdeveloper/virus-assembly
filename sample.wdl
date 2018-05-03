@@ -61,11 +61,11 @@ workflow sample {
     # The below code assumes that library.reads1 and library.reads2 are in the same order
     call common.concatenateTextFiles as concatenateReads1 {
         input:
-                        fileList = library.reads1,
-                        combinedFilePath = outputDir + "/combinedReads1-" + sampleId
-                }
+            fileList = library.reads1,
+            combinedFilePath = outputDir + "/combinedReads1-" + sampleId
+        }
 
-    if (length(select_all(library.reads1)) > 0) {
+    if (length(select_all(library.reads2)) > 0) {
         call common.concatenateTextFiles as concatenateReads2 {
             input:
                 fileList = select_all(library.reads2),
