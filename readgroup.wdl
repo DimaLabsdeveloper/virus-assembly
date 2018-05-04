@@ -28,7 +28,6 @@ workflow readgroup {
     String libraryId
     String sampleId
     String outputDir
-    File? referenceFile
 
     call biopet.SampleConfig as config {
         input:
@@ -46,15 +45,6 @@ workflow readgroup {
             outputDir = outputDir + "qc"
     }
 
-    if (defined(referenceFile)) {
-        call bwa.BwaMem as bwaMem {
-            input:
-                inputR1 = qc.read1afterQC,
-                inputR2 = qc.read2afterQC,
-                referenceFasta = select_first([referenceFile]),
-                outputPath= outputDir + "/" + readgroupId + ".bam"
-        }
-    }
     output {
         File read1afterQC = qc.read1afterQC
         File? read2afterQC = qc.read2afterQC
