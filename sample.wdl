@@ -61,7 +61,7 @@ workflow sample {
     # The below code assumes that library.reads1 and library.reads2 are in the same order
     call common.concatenateTextFiles as concatenateLibraryReads1 {
         input:
-            fileList = library.reads1,
+            fileList = select_all(library.reads1),
             combinedFilePath = outputDir + "/combinedReads1-" + sampleId
         }
 

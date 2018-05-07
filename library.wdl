@@ -58,7 +58,7 @@ workflow library {
     # The below code assumes that QC.read1afterQC and QC.read2afterQC are in the same order.
     call common.concatenateTextFiles as concatenateReads1 {
         input:
-            fileList = readgroup.read1afterQC,
+            fileList = select_all(readgroup.read1afterQC),
             combinedFilePath = outputDir + "/combinedReads1-" + libraryId
         }
 
