@@ -34,7 +34,7 @@ workflow pipeline {
     # Do the jobs that should be executed per sample.
     # Modify sample.wdl to change what is happening per sample
     scatter (sampleId in samplesConfigs.keys) {
-        call sampleWorkflow.sample as sample {
+        call sampleWorkflow.sample as sampleWf {
             input:
                 sampleConfigs = sampleConfigFiles,
                 sampleId = sampleId,
@@ -47,8 +47,8 @@ workflow pipeline {
 
     output {
         Array[String] samples = samplesConfigs.keys
-        Array[File] contigs = sample.spadesContigs
-        Array[File] scaffolds = sample.spadesScaffolds
+        Array[File] contigs = sampleWf.spadesContigs
+        Array[File] scaffolds = sampleWf.spadesScaffolds
 
     }
 }
