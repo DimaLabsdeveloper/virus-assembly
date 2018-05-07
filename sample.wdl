@@ -75,7 +75,7 @@ workflow sample {
     File combinedReads1 = concatenateLibraryReads1.combinedFile
     File? combinedReads2 = concatenateLibraryReads2.combinedFile
 
-    call seqtk.subsample as subsampleRead1 {
+    call seqtk.sample as subsampleRead1 {
         input:
             sequenceFile=combinedReads1,
             number=downsampleNumber,
@@ -86,7 +86,7 @@ workflow sample {
 
     if (defined(combinedReads2)) {
         # Downsample read2
-        call seqtk.subsample as subsampleRead2 {
+        call seqtk.sample as subsampleRead2 {
             input:
                 sequenceFile=select_first([combinedReads2]),
                 number=downsampleNumber,
