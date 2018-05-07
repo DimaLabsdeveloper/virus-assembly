@@ -59,21 +59,21 @@ workflow sample {
     # results below this line.
 
     # The below code assumes that library.reads1 and library.reads2 are in the same order
-    call common.concatenateTextFiles as concatenateReads1 {
+    call common.concatenateTextFiles as concatenateLibraryReads1 {
         input:
             fileList = library.reads1,
             combinedFilePath = outputDir + "/combinedReads1-" + sampleId
         }
 
     if (length(select_all(library.reads2)) > 0) {
-        call common.concatenateTextFiles as concatenateReads2 {
+        call common.concatenateTextFiles as concatenateLibraryReads2 {
             input:
                 fileList = select_all(library.reads2),
                 combinedFilePath = outputDir + "/combinedReads2-" + sampleId
             }
         }
-    File combinedReads1 = concatenateReads1.combinedFile
-    File? combinedReads2 = concatenateReads2.combinedFile
+    File combinedReads1 = concatenateLibraryReads1.combinedFile
+    File? combinedReads2 = concatenateLibraryReads2.combinedFile
 
     call seqtk.subsample as subsampleRead1 {
         input:
