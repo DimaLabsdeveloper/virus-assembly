@@ -20,6 +20,7 @@
 
 import "tasks/biopet.wdl" as biopet
 import "QC/QC.wdl" as QC
+import "tasks/bwa.wdl" as bwa
 
 workflow readgroup {
     Array[File] sampleConfigs
