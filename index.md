@@ -16,9 +16,7 @@ java -jar cromwell-<version>.jar run -i inputs.json pipeline.wdl
 ```
 
 The inputs JSON can be generated using WOMtools as described in the [WOMtools
-documentation](http://cromwell.readthedocs.io/en/stable/WOMtool/). Note that
-not some inputs should not be used! See [this page](inputs.md) for more
-information.
+documentation](http://cromwell.readthedocs.io/en/stable/WOMtool/).
 
 The primary inputs are described below, additional inputs (such as precommands
 and JAR paths) are available. Please use the above mentioned WOMtools command
