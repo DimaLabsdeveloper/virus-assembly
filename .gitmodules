@@ -1,6 +1,8 @@
 [submodule "tasks"]
+    branch = develop
 	path = tasks
 	url = https://github.com/biowdl/tasks.git
 [submodule "QC"]
+    branch = develop
 	path = QC
 	url = https://github.com/biowdl/QC.git
