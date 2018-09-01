@@ -1,3 +1,5 @@
+version 1.0
+
 # Copyright (c) 2018 Sequencing Analysis Support Core - Leiden University Medical Center
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,25 +22,30 @@
 
 import "sample.wdl" as sampleWorkflow
 import "tasks/biopet.wdl" as biopet
+import "structs.wdl" as structs
 
 workflow pipeline {
-    Array[File] sampleConfigFiles
-    String outputDir
-
-    #  Reading the samples from the sample config files
-    call biopet.SampleConfig as samplesConfigs {
-        input:
-            inputFiles = sampleConfigFiles
+    input {
+        Array[File] sampleConfigFiles
+        String outputDir
+        VirusAssemblyInputs virusAssemblyInputs
     }
 
-    # Do the jobs that should be executed per sample.
-    # Modify sample.wdl to change what is happening per sample
-    scatter (sampleId in samplesConfigs.keys) {
-        call sampleWorkflow.sample as sample {
+    call biopet.SampleConfigCromwellArrays as configFile {
+        input:
+            inputFiles = sampleConfigFiles,
+            outputPath = "samples.json"
+    }
+
+     Root config = read_json(configFile.outputFile)
+
+    # Running sample subworkflow
+    scatter (sm in config.samples) {
+        call sampleWorkflow.Sample as sample {
             input:
-                sampleConfigs = sampleConfigFiles,
-                sampleId = sampleId,
-                outputDir = outputDir + "/sample_" + sampleId
+                sampleDir = outputDir + "/samples/" + sm.id,
+                sample = sm,
+                virusAssemblyInputs = virusAssemblyInputs
         }
     }
 
@@ -46,6 +53,6 @@ workflow pipeline {
     # below this line.
 
     output {
-        Array[String] samples = samplesConfigs.keys
+
     }
 }

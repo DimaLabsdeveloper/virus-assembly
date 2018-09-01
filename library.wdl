@@ -1,3 +1,5 @@
+version 1.0
+
 # Copyright (c) 2018 Sequencing Analysis Support Core - Leiden University Medical Center
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,37 +20,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import "readgroup.wdl" as readgroup
+import "readgroup.wdl" as readgroupWorkflow
 import "tasks/biopet.wdl" as biopet
 import "tasks/common.wdl" as common
+import "structs.wdl" as structs
 
-workflow library {
-    Array[File] sampleConfigs
-    String sampleId
-    String libraryId
-    String outputDir
-
-    # Get the readgroup configuration
-    call biopet.SampleConfig as readgroupConfigs {
-        input:
-            inputFiles = sampleConfigs,
-            sample = sampleId,
-            library = libraryId,
-            tsvOutputPath = libraryId + ".config.tsv"
+workflow Library {
+    input {
+        Sample sample
+        Library library
+        String libraryDir
+        VirusAssemblyInputs virusAssemblyInputs
     }
 
-    # The jobs that are done per readgroup.
-    # Modify readgroup.wdl to change what is happening per readgroup
-    scatter (readgroupId in readgroupConfigs.keys) {
-        if (readgroupId != "") {
-            call readgroup.readgroup as readgroup {
-                input:
-                    outputDir = outputDir + "/rg_" + readgroupId,
-                    sampleConfigs = sampleConfigs,
-                    readgroupId = readgroupId,
-                    libraryId = libraryId,
-                    sampleId = sampleId
-            }
+    scatter (rg in library.readgroups) {
+        call readgroupWorkflow.Readgroup as readgroup {
+            input:
+                readgroupDir = libraryDir + "/rg_" + rg.id,
+                readgroup = rg,
+                library = library,
+                sample = sample,
+                virusAssemblyInputs = virusAssemblyInputs
         }
     }
 
@@ -56,22 +48,21 @@ workflow library {
     # all the readgroups below this line.
 
     # The below code assumes that QC.read1afterQC and QC.read2afterQC are in the same order.
-    call common.concatenateTextFiles as concatenateReads1 {
+    call common.ConcatenateTextFiles as concatenateReads1 {
         input:
-            fileList = select_all(readgroup.read1afterQC),
-            combinedFilePath = outputDir + "/combinedReads1-" + libraryId
+            fileList = readgroup.read1afterQC,
+            combinedFilePath = libraryDir + "/combinedReads1-" + library.id
         }
 
     if (length(select_all(readgroup.read2afterQC)) > 0) {
-        call common.concatenateTextFiles as concatenateReads2 {
+        call common.ConcatenateTextFiles as concatenateReads2 {
             input:
                 fileList = select_all(readgroup.read2afterQC),
-                combinedFilePath = outputDir + "/combinedReads2-" + libraryId
+                combinedFilePath = libraryDir + "/combinedReads2-" + library.id
             }
         }
 
     output {
-        Array[String] readgroups = readgroupConfigs.keys
         File reads1 = concatenateReads1.combinedFile
         File? reads2 = concatenateReads2.combinedFile
     }

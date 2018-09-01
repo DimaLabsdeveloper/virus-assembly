@@ -25,8 +25,7 @@ struct Root {
     Array[Sample] samples
 }
 
-struct GamsInputs {
-    Boolean? combineReads
-    String centrifugeIndexPrefix
-    Int? assignments
+struct VirusAssemblyInputs {
+    Int? downsampleNumber
+    Int? downsampleSeed
 }
