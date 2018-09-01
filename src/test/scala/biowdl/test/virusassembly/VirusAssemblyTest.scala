@@ -29,6 +29,4 @@ class VirusAssemblyTest
     extends VirusAssemblySuccess
     with TestReference
     with Wgs1PairedEnd
-    with Wgs2PairedEnd {
-
-}
+    with Wgs2PairedEnd {}
