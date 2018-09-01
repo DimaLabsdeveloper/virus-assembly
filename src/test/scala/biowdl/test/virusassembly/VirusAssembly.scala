@@ -31,7 +31,7 @@ trait VirusAssembly extends MultisamplePipeline {
     super.inputs ++
       Map(
         "pipeline.outputDir" -> outputDir.getAbsolutePath,
-        "pipeline.gamsInputs" -> Map()
+        "pipeline.virusAssemblyInputs" -> Map()
       )
 
   def startFile: File = new File("./pipeline.wdl")
