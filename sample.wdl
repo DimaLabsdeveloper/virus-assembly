@@ -64,22 +64,26 @@ workflow Sample {
     File combinedReads1 = concatenateLibraryReads1.combinedFile
     File? combinedReads2 = concatenateLibraryReads2.combinedFile
 
-    call seqtk.Sample as subsampleRead1 {
-        input:
-            sequenceFile = combinedReads1,
-            number = virusAssemblyInputs.downsampleNumber,
-            seed = virusAssemblyInputs.downsampleSeed,
-            outFilePath= sampleDir + "/subsampling/subsampledReads1.fq.gz", #Spades needs a proper extension or it will crash
-            zip=true
+    Int seed = select_first([virusAssemblyInputs.downsampleSeed, 11])
+
+    if (defined(virusAssemblyInputs.fractionOrNumber)) {
+        call seqtk.Sample as subsampleRead1 {
+            input:
+                sequenceFile = combinedReads1,
+                fractionOrNumber = virusAssemblyInputs.fractionOrNumber,
+                seed = seed,
+                outFilePath= sampleDir + "/subsampling/subsampledReads1.fq.gz", #Spades needs a proper extension or it will crash
+                zip=true
+        }
     }
 
-    if (defined(combinedReads2)) {
+    if (defined(combinedReads2) && defined(virusAssemblyInputs.fractionOrNumber)) {
         # Downsample read2
         call seqtk.Sample as subsampleRead2 {
             input:
                 sequenceFile = select_first([combinedReads2]),
-                number = virusAssemblyInputs.downsampleNumber,
-                seed = virusAssemblyInputs.downsampleSeed,
+                fractionOrNumber = virusAssemblyInputs.fractionOrNumber,
+                seed = seed,
                 outFilePath = sampleDir + "/subsampling/subsampledReads2.fq.gz",  #Spades needs a proper extension or it will crash
                 zip = true
             }
@@ -88,8 +92,8 @@ workflow Sample {
     # Call spades for the de-novo assembly of the virus.
     call spades.Spades as spades {
         input:
-            read1=subsampleRead1.subsampledReads,
-            read2=subsampleRead2.subsampledReads,
+            read1 = select_first([subsampleRead1.subsampledReads, combinedReads1]),
+            read2 = if (defined(virusAssemblyInputs.fractionOrNumber)) then subsampleRead2.subsampledReads else combinedReads2,
             outputDir = sampleDir + "/spades"
         }
     output {

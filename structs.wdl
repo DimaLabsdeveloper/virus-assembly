@@ -26,6 +26,6 @@ struct Root {
 }
 
 struct VirusAssemblyInputs {
-    Int? downsampleNumber
+    Float? fractionOrNumber
     Int? downsampleSeed
 }
