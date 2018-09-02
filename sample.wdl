@@ -72,7 +72,7 @@ workflow Sample {
         call seqtk.Sample as subsampleRead1 {
             input:
                 sequenceFile = combinedReads1,
-                fractionOrNumber = virusAssemblyInputs.fractionOrNumber,
+                fractionOrNumber = select_first([virusAssemblyInputs.fractionOrNumber]),
                 seed = seed,
                 outFilePath= sampleDir + "/subsampling/subsampledReads1.fq.gz", #Spades needs a proper extension or it will crash
                 zip=true
@@ -84,7 +84,7 @@ workflow Sample {
         call seqtk.Sample as subsampleRead2 {
             input:
                 sequenceFile = select_first([combinedReads2]),
-                fractionOrNumber = virusAssemblyInputs.fractionOrNumber,
+                fractionOrNumber = select_first([virusAssemblyInputs.fractionOrNumber]),
                 seed = seed,
                 outFilePath = sampleDir + "/subsampling/subsampledReads2.fq.gz",  #Spades needs a proper extension or it will crash
                 zip = true
