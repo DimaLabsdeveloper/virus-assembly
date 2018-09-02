@@ -51,14 +51,16 @@ workflow Sample {
     call common.ConcatenateTextFiles as concatenateLibraryReads1 {
         input:
             fileList = library.reads1,
-            combinedFilePath = sampleDir + "/combinedReads1-" + sample.id
+            combinedFilePath = sampleDir + "/combinedReads1-" + sample.id + ".fq.gz",
+            zip = true
         }
 
     if (length(select_all(library.reads2)) > 0) {
         call common.ConcatenateTextFiles as concatenateLibraryReads2 {
             input:
                 fileList = select_all(library.reads2),
-                combinedFilePath = sampleDir + "/combinedReads2-" + sample.id
+                combinedFilePath = sampleDir + "/combinedReads2-" + sample.id + ".fq.gz",
+                zip = true
             }
         }
     File combinedReads1 = concatenateLibraryReads1.combinedFile
