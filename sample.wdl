@@ -52,7 +52,8 @@ workflow Sample {
         input:
             fileList = library.reads1,
             combinedFilePath = sampleDir + "/combinedReads1-" + sample.id + ".fq.gz",
-            zip = true
+            zip = true,
+            unzip = true
         }
 
     if (length(select_all(library.reads2)) > 0) {
@@ -60,7 +61,8 @@ workflow Sample {
             input:
                 fileList = select_all(library.reads2),
                 combinedFilePath = sampleDir + "/combinedReads2-" + sample.id + ".fq.gz",
-                zip = true
+                zip = true,
+                unzip = true
             }
         }
     File combinedReads1 = concatenateLibraryReads1.combinedFile
