@@ -1,3 +1,5 @@
+version 1.0
+
 # Copyright (c) 2018 Sequencing Analysis Support Core - Leiden University Medical Center
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,88 +25,86 @@ import "tasks/biopet.wdl" as biopet
 import "tasks/common.wdl" as common
 import "tasks/seqtk.wdl" as seqtk
 import "tasks/spades.wdl" as spades
+import "structs.wdl" as structs
 
-workflow sample {
-    Array[File] sampleConfigs
-    String sampleId
-    String outputDir
-    Int? downsampleNumber
-    Int? downsampleSeed = 11
-
-    # Get the library configuration
-    call biopet.SampleConfig as librariesConfigs {
-        input:
-            inputFiles = sampleConfigs,
-            sample = sampleId,
-            jsonOutputPath = sampleId + ".config.json",
-            tsvOutputPath = sampleId + ".config.tsv"
+workflow Sample {
+    input {
+        Sample sample
+        String sampleDir
+        VirusAssemblyInputs virusAssemblyInputs
     }
 
-    # Do the work per library.
-    # Modify library.wdl to change what is happening per library.
-    scatter (libraryId in librariesConfigs.keys) {
-        if (libraryId != "") {
-            call libraryWorkflow.library as library {
-                input:
-                    outputDir = outputDir + "/lib_" + libraryId,
-                    sampleConfigs = sampleConfigs,
-                    libraryId = libraryId,
-                    sampleId = sampleId
-            }
+    scatter (lb in sample.libraries) {
+        call libraryWorkflow.Library as library {
+            input:
+                libraryDir = sampleDir + "/lib_" + lb.id,
+                library = lb,
+                sample = sample,
+                virusAssemblyInputs = virusAssemblyInputs
         }
     }
-
 
     # Do the per sample work and the work over all the library
     # results below this line.
 
     # The below code assumes that library.reads1 and library.reads2 are in the same order
-    call common.concatenateTextFiles as concatenateLibraryReads1 {
+    call common.ConcatenateTextFiles as concatenateLibraryReads1 {
         input:
-            fileList = select_all(library.reads1),
-            combinedFilePath = outputDir + "/combinedReads1-" + sampleId
+            fileList = flatten(library.reads1),
+            combinedFilePath = sampleDir + "/combinedReads1-" + sample.id + ".fq.gz",
+            zip = true,
+            unzip = true
         }
 
-    if (length(select_all(library.reads2)) > 0) {
-        call common.concatenateTextFiles as concatenateLibraryReads2 {
+    if (defined(library.reads2)) {
+        call common.ConcatenateTextFiles as concatenateLibraryReads2 {
             input:
-                fileList = select_all(library.reads2),
-                combinedFilePath = outputDir + "/combinedReads2-" + sampleId
+                fileList = flatten(select_all(library.reads2)),
+                combinedFilePath = sampleDir + "/combinedReads2-" + sample.id + ".fq.gz",
+                zip = true,
+                unzip = true
             }
         }
+
     File combinedReads1 = concatenateLibraryReads1.combinedFile
     File? combinedReads2 = concatenateLibraryReads2.combinedFile
 
-    call seqtk.sample as subsampleRead1 {
-        input:
-            sequenceFile=combinedReads1,
-            number=downsampleNumber,
-            seed=downsampleSeed,
-            outFilePath=outputDir + "/subsampling/subsampledReads1.fq.gz", #Spades needs a proper extension or it will crash
-            zip=true
+    Int seed = select_first([virusAssemblyInputs.downsampleSeed, 11])
+
+    if (defined(virusAssemblyInputs.fractionOrNumber)) {
+        call seqtk.Sample as subsampleRead1 {
+            input:
+                sequenceFile = combinedReads1,
+                fractionOrNumber = select_first([virusAssemblyInputs.fractionOrNumber]),
+                seed = seed,
+                outFilePath = sampleDir + "/subsampling/subsampledReads1.fq.gz", #Spades needs a proper extension or it will crash
+                zip = true
+        }
     }
 
-    if (defined(combinedReads2)) {
+    if (defined(combinedReads2) && defined(virusAssemblyInputs.fractionOrNumber)) {
         # Downsample read2
-        call seqtk.sample as subsampleRead2 {
+        call seqtk.Sample as subsampleRead2 {
             input:
-                sequenceFile=select_first([combinedReads2]),
-                number=downsampleNumber,
-                seed=downsampleSeed,
-                outFilePath=outputDir + "/subsampling/subsampledReads2.fq.gz",  #Spades needs a proper extension or it will crash
-                zip=true
+                sequenceFile = select_first([combinedReads2]),
+                fractionOrNumber = select_first([virusAssemblyInputs.fractionOrNumber]),
+                seed = seed,
+                outFilePath = sampleDir + "/subsampling/subsampledReads2.fq.gz",  #Spades needs a proper extension or it will crash
+                zip = true
             }
     }
 
     # Call spades for the de-novo assembly of the virus.
-    call spades.spades {
+    call spades.Spades as spades {
         input:
-            read1=subsampleRead1.subsampledReads,
-            read2=subsampleRead2.subsampledReads,
-            outputDir=outputDir + "/spades"
+            read1 = select_first([subsampleRead1.subsampledReads, combinedReads1]),
+            read2 = if (defined(virusAssemblyInputs.fractionOrNumber))
+                    then subsampleRead2.subsampledReads
+                    else combinedReads2,
+            outputDir = sampleDir + "/spades"
         }
+
     output {
-        Array[String] libraries = librariesConfigs.keys
         File spadesContigs = spades.contigs
         File spadesScaffolds = spades.scaffolds
     }

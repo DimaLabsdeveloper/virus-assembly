@@ -1,3 +1,5 @@
+version 1.0
+
 # Copyright (c) 2018 Sequencing Analysis Support Core - Leiden University Medical Center
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,28 +23,25 @@
 import "tasks/biopet.wdl" as biopet
 import "QC/QC.wdl" as QC
 import "tasks/bwa.wdl" as bwa
+import "structs.wdl" as structs
 
-workflow readgroup {
-    Array[File] sampleConfigs
-    String readgroupId
-    String libraryId
-    String sampleId
-    String outputDir
-
-    call biopet.SampleConfig as config {
-        input:
-            inputFiles = sampleConfigs,
-            sample = sampleId,
-            library = libraryId,
-            readgroup = readgroupId,
-            tsvOutputPath = readgroupId + ".config.tsv"
+workflow Readgroup {
+    input {
+        Readgroup readgroup
+        Library library
+        Sample sample
+        String readgroupDir
+        VirusAssemblyInputs virusAssemblyInputs
     }
 
     call QC.QC as qc {
         input:
-            read1 = config.values.R1,
-            read2 = config.values.R2,
-            outputDir = outputDir + "qc"
+            read1 = readgroup.R1,
+            read2 = readgroup.R2,
+            outputDir = readgroupDir,
+            sample = sample.id,
+            library = library.id,
+            readgroup = readgroup.id
     }
 
     output {

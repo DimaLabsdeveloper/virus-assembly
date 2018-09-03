@@ -1,0 +1,15 @@
+name: multsample
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+  - r
+dependencies:
+  - samtools==1.8
+  - spades=3.12.0
+  - biopet-extractadaptersfastqc==0.2
+  - biopet-sampleconfig==0.2
+  - biopet-seqstat==1.0.1
+  - biopet-validatefastq==0.1.1
+  - cutadapt==1.16
+  - fastqc==0.11.7
