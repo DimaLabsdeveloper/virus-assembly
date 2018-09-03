@@ -47,23 +47,12 @@ workflow Library {
     # Add the jobs that are done per library and over the results of
     # all the readgroups below this line.
 
-    # The below code assumes that QC.read1afterQC and QC.read2afterQC are in the same order.
-    call common.ConcatenateTextFiles as concatenateReads1 {
-        input:
-            fileList = readgroup.read1afterQC,
-            combinedFilePath = libraryDir + "/combinedReads1-" + library.id
-        }
-
     if (length(select_all(readgroup.read2afterQC)) > 0) {
-        call common.ConcatenateTextFiles as concatenateReads2 {
-            input:
-                fileList = select_all(readgroup.read2afterQC),
-                combinedFilePath = libraryDir + "/combinedReads2-" + library.id
-            }
-        }
+        Array[File] r2 = select_all(readgroup.read2afterQC)
+    }
 
     output {
-        File reads1 = concatenateReads1.combinedFile
-        File? reads2 = concatenateReads2.combinedFile
+        Array[File] reads1 = readgroup.read1afterQC
+        Array[File]? reads2 = r2
     }
 }

@@ -50,21 +50,22 @@ workflow Sample {
     # The below code assumes that library.reads1 and library.reads2 are in the same order
     call common.ConcatenateTextFiles as concatenateLibraryReads1 {
         input:
-            fileList = library.reads1,
+            fileList = flatten(library.reads1),
             combinedFilePath = sampleDir + "/combinedReads1-" + sample.id + ".fq.gz",
             zip = true,
             unzip = true
         }
 
-    if (length(select_all(library.reads2)) > 0) {
+    if (defined(library.reads2)) {
         call common.ConcatenateTextFiles as concatenateLibraryReads2 {
             input:
-                fileList = select_all(library.reads2),
+                fileList = flatten(select_all(library.reads2)),
                 combinedFilePath = sampleDir + "/combinedReads2-" + sample.id + ".fq.gz",
                 zip = true,
                 unzip = true
             }
         }
+
     File combinedReads1 = concatenateLibraryReads1.combinedFile
     File? combinedReads2 = concatenateLibraryReads2.combinedFile
 
