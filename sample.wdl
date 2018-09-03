@@ -77,8 +77,8 @@ workflow Sample {
                 sequenceFile = combinedReads1,
                 fractionOrNumber = select_first([virusAssemblyInputs.fractionOrNumber]),
                 seed = seed,
-                outFilePath= sampleDir + "/subsampling/subsampledReads1.fq.gz", #Spades needs a proper extension or it will crash
-                zip=true
+                outFilePath = sampleDir + "/subsampling/subsampledReads1.fq.gz", #Spades needs a proper extension or it will crash
+                zip = true
         }
     }
 

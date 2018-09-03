@@ -37,7 +37,7 @@ workflow pipeline {
             outputPath = "samples.json"
     }
 
-     Root config = read_json(configFile.outputFile)
+    Root config = read_json(configFile.outputFile)
 
     # Running sample subworkflow
     scatter (sm in config.samples) {
