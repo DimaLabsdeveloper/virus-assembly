@@ -101,6 +101,7 @@ workflow Sample {
             read2 = if (defined(virusAssemblyInputs.fractionOrNumber)) then subsampleRead2.subsampledReads else combinedReads2,
             outputDir = sampleDir + "/spades"
         }
+
     output {
         File spadesContigs = spades.contigs
         File spadesScaffolds = spades.scaffolds

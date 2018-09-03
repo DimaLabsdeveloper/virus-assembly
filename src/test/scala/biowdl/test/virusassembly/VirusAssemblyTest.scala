@@ -21,7 +21,6 @@
 
 package biowdl.test.virusassembly
 
-import nl.biopet.utils.biowdl.fixtureDir
 import nl.biopet.utils.biowdl.references.TestReference
 import nl.biopet.utils.biowdl.samples.{Wgs1PairedEnd, Wgs2PairedEnd}
 
@@ -29,4 +28,4 @@ class VirusAssemblyTest
     extends VirusAssemblySuccess
     with TestReference
     with Wgs1PairedEnd
-    with Wgs2PairedEnd {}
+    with Wgs2PairedEnd
