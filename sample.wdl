@@ -98,7 +98,9 @@ workflow Sample {
     call spades.Spades as spades {
         input:
             read1 = select_first([subsampleRead1.subsampledReads, combinedReads1]),
-            read2 = if (defined(virusAssemblyInputs.fractionOrNumber)) then subsampleRead2.subsampledReads else combinedReads2,
+            read2 = if (defined(virusAssemblyInputs.fractionOrNumber))
+                    then subsampleRead2.subsampledReads
+                    else combinedReads2,
             outputDir = sampleDir + "/spades"
         }
 
