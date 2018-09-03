@@ -1,8 +1,8 @@
 organization := "com.github.biopet"
 organizationName := "Biowdl"
-name := "Gams"
+name := "VirusAssembly"
 
-biopetUrlName := "Gams"
+biopetUrlName := "VirusAssembly"
 
 startYear := Some(2018)
 
