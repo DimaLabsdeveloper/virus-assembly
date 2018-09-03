@@ -38,7 +38,7 @@ workflow Readgroup {
         input:
             read1 = readgroup.R1,
             read2 = readgroup.R2,
-            outputDir = readgroupDir + "qc",
+            outputDir = readgroupDir,
             sample = sample.id,
             library = library.id,
             readgroup = readgroup.id
