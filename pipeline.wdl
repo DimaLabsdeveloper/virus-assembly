@@ -21,7 +21,7 @@ version 1.0
 # SOFTWARE.
 
 import "sample.wdl" as sampleWorkflow
-import "tasks/biopet.wdl" as biopet
+import "tasks/biopet/sampleconfig.wdl" as sampleconfig
 import "structs.wdl" as structs
 
 workflow pipeline {
@@ -31,7 +31,7 @@ workflow pipeline {
         VirusAssemblyInputs virusAssemblyInputs
     }
 
-    call biopet.SampleConfigCromwellArrays as configFile {
+    call sampleconfig.SampleConfigCromwellArrays as configFile {
         input:
             inputFiles = sampleConfigFiles,
             outputPath = "samples.json"
