@@ -21,7 +21,6 @@ version 1.0
 # SOFTWARE.
 
 import "readgroup.wdl" as readgroupWorkflow
-import "tasks/biopet.wdl" as biopet
 import "tasks/common.wdl" as common
 import "structs.wdl" as structs
 
@@ -47,12 +46,7 @@ workflow Library {
     # Add the jobs that are done per library and over the results of
     # all the readgroups below this line.
 
-    if (length(select_all(readgroup.read2afterQC)) > 0) {
-        Array[File] r2 = select_all(readgroup.read2afterQC)
-    }
-
     output {
-        Array[File] reads1 = readgroup.read1afterQC
-        Array[File]? reads2 = r2
+        Array[FastqPair] reads = readgroup.readsAfterQC
     }
 }

@@ -21,7 +21,6 @@ version 1.0
 # SOFTWARE.
 
 import "library.wdl" as libraryWorkflow
-import "tasks/biopet.wdl" as biopet
 import "tasks/common.wdl" as common
 import "tasks/seqtk.wdl" as seqtk
 import "tasks/spades.wdl" as spades
@@ -44,22 +43,27 @@ workflow Sample {
         }
     }
 
+    scatter (rg in flatten(library.reads)) {
+      File rgReadsR1 = rg.R1
+      File? rgReadsR2 = rg.R2
+    }
+
     # Do the per sample work and the work over all the library
     # results below this line.
 
     # The below code assumes that library.reads1 and library.reads2 are in the same order
     call common.ConcatenateTextFiles as concatenateLibraryReads1 {
         input:
-            fileList = flatten(library.reads1),
+            fileList = rgReadsR1,
             combinedFilePath = sampleDir + "/combinedReads1-" + sample.id + ".fq.gz",
             zip = true,
             unzip = true
         }
 
-    if (defined(library.reads2)) {
+    if (length(select_all(rgReadsR2)) > 0) {
         call common.ConcatenateTextFiles as concatenateLibraryReads2 {
             input:
-                fileList = flatten(select_all(library.reads2)),
+                fileList = select_all(rgReadsR2),
                 combinedFilePath = sampleDir + "/combinedReads2-" + sample.id + ".fq.gz",
                 zip = true,
                 unzip = true

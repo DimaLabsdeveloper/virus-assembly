@@ -20,7 +20,6 @@ version 1.0
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import "tasks/biopet.wdl" as biopet
 import "QC/QC.wdl" as QC
 import "tasks/bwa.wdl" as bwa
 import "structs.wdl" as structs
@@ -36,8 +35,7 @@ workflow Readgroup {
 
     call QC.QC as qc {
         input:
-            read1 = readgroup.R1,
-            read2 = readgroup.R2,
+            reads = readgroup.reads,
             outputDir = readgroupDir,
             sample = sample.id,
             library = library.id,
@@ -45,8 +43,7 @@ workflow Readgroup {
     }
 
     output {
-        File read1afterQC = qc.read1afterQC
-        File? read2afterQC = qc.read2afterQC
+        FastqPair readsAfterQC = qc.readsAfterQC
     }
 
 }
