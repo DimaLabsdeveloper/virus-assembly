@@ -1,4 +1,4 @@
-name: multsample
+name: virus-assembly
 channels:
   - bioconda
   - conda-forge
